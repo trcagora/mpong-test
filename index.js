@@ -4,9 +4,7 @@ const server = require("http").Server(app);
 const io = require("socket.io")(server);
 
 const bodyParser = require('body-parser');
-const Database = require("@replit/database");
 
-const db = new Database();
 const f = require("./functions");
 const users = {};
 
@@ -42,7 +40,7 @@ app.get("/game/:room", (req, res) => {
         res.render("game/multiplayer/player2.html", {user:'User2', room:room, otheruser:Object.values(users[room])[0], loggedIn:true});
       }
     } else {
-      res.render("error.html", {title:"Connect 4", content:`<h1 style="margin-0top:50px;">Sorry, this room already has 2 players. Go join another.</h1>`, loggedIn:true, user:f.getUser(req)});
+      res.render("error.html", {title:"Connect 4", content:`<h1 style="margin-0top:50px;">Sorry, this room already has 2 players. Go join another.</h1>`, loggedIn:true, user: 'None'});
     };
 });
 
@@ -51,7 +49,7 @@ app.get("/game", (req, res) => {
 });
 
 app.get("/*", (req, res) => {
-  res.status(404).render("error.html", {loggedIn:f.loggedIn(req), user:f.getUser(req), title:"Page Not Found", content:`<h1>Error 404</h1><h2>Page Not Found</h2><img src="/img/robot.jpeg" width="400px" style="border:none"><br><br><a href="/" style="color:white; font-size:20px">Go to home</a>`});
+  res.status(404).render("error.html", {loggedIn:true, user:'None', title:"Page Not Found", content:`<h1>Error 404</h1><h2>Page Not Found</h2><img src="/img/robot.jpeg" width="400px" style="border:none"><br><br><a href="/" style="color:white; font-size:20px">Go to home</a>`});
 });
 
 io.on("connection", socket => {
