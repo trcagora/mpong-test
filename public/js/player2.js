@@ -24,32 +24,39 @@ var dy = 5;
 var leave;
 
 startGame();
-socket.emit("joined", room, 'tets2');
-alertmodal("Joined!", `${otheruser} is already in the game! Start playing!`)
 
-socket.on("leave", username => {
-  alertmodal("Left", `${username} has left the game!`).then(() => location.href = "/join");
+socket.emit("joined", room, "tets2");
+socket.emit("joinedOponent", room, "tets2");
+
+alertmodal(
+  "Ingresado!",
+  `${otheruser} a ingresado al juego! empieza el juego!`
+);
+
+socket.on("leave", (username) => {
+  alertmodal("Salida", `${username} a dejado el juego!`).then(() =>
+    socket.emit("gameover", { room, opponentScore: otherscore, myScore: score })
+  );
   leave = true;
 });
-
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
   e.preventDefault();
-	if(e.key == "ArrowDown"){
-		down = true;
+  if (e.key == "ArrowDown") {
+    down = true;
     socket.emit("movedown", room);
-	}
-	if(e.key == "ArrowUp"){
-		up = true;
+  }
+  if (e.key == "ArrowUp") {
+    up = true;
     socket.emit("moveup", room);
-	}
+  }
 });
 
-document.addEventListener("keyup", e => {
-  if(e.key == "ArrowDown"){
+document.addEventListener("keyup", (e) => {
+  if (e.key == "ArrowDown") {
     down = false;
     socket.emit("endmovedown", room);
   }
-  if(e.key == "ArrowUp"){
+  if (e.key == "ArrowUp") {
     up = false;
     socket.emit("endmoveup", room);
   }
@@ -68,7 +75,7 @@ socket.on("endmoveup", () => {
   otherup = false;
 });
 
-function drawBg(){
+function drawBg() {
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
   c.beginPath();
@@ -78,67 +85,70 @@ function drawBg(){
   c.stroke();
 }
 
-function drawPaddle(x, y){
+function drawPaddle(x, y) {
   c.beginPath();
   c.rect(x, y, 20, paddleHeight);
   c.fillStyle = "blue";
   c.fill();
 }
 
-function drawBall(x, y){
+function drawBall(x, y) {
   c.beginPath();
   c.arc(x, y, 25, 0, 7);
   c.fillStyle = "white";
   c.fill();
 }
 
-function animate(){
-  if(leave) return;
+function animate() {
+  if (leave) return;
   drawBg();
-  if((y + radius) > paddleY && (x + radius) > paddleX && (y - radius) < (paddleY + 100)) {
-		dx = Math.abs(dx) * -1;
+  if (
+    y + radius > paddleY &&
+    x + radius > paddleX &&
+    y - radius < paddleY + 100
+  ) {
+    dx = Math.abs(dx) * -1;
     document.getElementById("pong_sound").play();
-	}
-  else if((y + radius) > otherPaddleY && (x - radius) < otherPaddleX + 20 && (y - radius) < (otherPaddleY + 100)) {
-		dx = Math.abs(dx);
+  } else if (
+    y + radius > otherPaddleY &&
+    x - radius < otherPaddleX + 20 &&
+    y - radius < otherPaddleY + 100
+  ) {
+    dx = Math.abs(dx);
     document.getElementById("pong_sound").play();
-	}
-  else {
-    if(x + radius > canvas.width){
+  } else {
+    if (x + radius > canvas.width) {
       otherscore += 1;
       dx = -dx;
     }
-    if(x - radius < 0){
+    if (x - radius < 0) {
       score += 1;
       dx = -dx;
     }
-    if(y < radius || y + radius > canvas.height){
+    if (y < radius || y + radius > canvas.height) {
       dy = -dy;
     }
   }
   x += dx;
   y += dy;
-	if(up && paddleY > 0) {
-		paddleY -= 7;
-	}
-	else if(down && paddleY < 400) {
-		paddleY += 7;
-	}
-	if(otherup && otherPaddleY > 0) {
-		otherPaddleY -= 7;
-	}
-	else if(otherdown && otherPaddleY < 400) {
-		otherPaddleY += 7;
-	}
+  if (up && paddleY > 0) {
+    paddleY -= 7;
+  } else if (down && paddleY < 400) {
+    paddleY += 7;
+  }
+  if (otherup && otherPaddleY > 0) {
+    otherPaddleY -= 7;
+  } else if (otherdown && otherPaddleY < 400) {
+    otherPaddleY += 7;
+  }
   document.getElementById("firstscore").innerHTML = otherscore;
   document.getElementById("secondscore").innerHTML = score;
-  if(score == 10){
-    alertmodal("Game Over!", `You beat ${otheruser} ${score} to ${otherscore}!`).then(() => location.href = "/join");
-    return;
-  }
-  if(otherscore == 10){
-    alertmodal("Game Over!", `${otheruser} beat you ${otherscore} to ${score}!`).then(() => location.href = "/join");
-    return;
+  if (score == 10 || otherscore == 10) {
+    socket.emit("gameover", {
+      room,
+      opponentScore: otherscore,
+      myScore: score,
+    });
   }
   drawPaddle(paddleX, paddleY);
   drawPaddle(otherPaddleX, otherPaddleY);
@@ -146,8 +156,8 @@ function animate(){
   requestAnimationFrame(animate);
 }
 
-function startGame(){
+function startGame() {
   setTimeout(() => {
     animate();
-  }, 1000)
+  }, 1000);
 }
