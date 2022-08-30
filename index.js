@@ -17,7 +17,7 @@ app.set("view engine", "html");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/game/:room", (req, res) => {
+app.get("/:room", (req, res) => {
   let room = req.params.room;
   if (!Object.keys(users).includes(room)) {
     users[room] = {};
@@ -25,17 +25,19 @@ app.get("/game/:room", (req, res) => {
   length = Object.keys(users[room]).length;
   if (length < 2) {
     if (length == 0) {
-      res.render("game/multiplayer/player1.html", {
-        user: "User1",
+      res.render("game/multiplayer/player.html", {
+        user: "Player1",
         room: room,
         loggedIn: true,
+        isPlayer2: false,
       });
     } else {
-      res.render("game/multiplayer/player2.html", {
-        user: "User2",
+      res.render("game/multiplayer/player.html", {
+        user: "Player2",
         room: room,
         otheruser: Object.values(users[room])[0],
         loggedIn: true,
+        isPlayer2: true,
       });
     }
   } else {
@@ -73,17 +75,29 @@ io.on("connection", (socket) => {
   socket.on("joinedOponent", (room, user) => {
     socket.broadcast.to(room).emit("joinedOponent", user);
   });
-  socket.on("movedown", (room) => {
-    socket.broadcast.to(room).emit("movedown");
+  socket.on("player1down", (room) => {
+    socket.broadcast.to(room).emit("player1down");
   });
-  socket.on("moveup", (room) => {
-    socket.broadcast.to(room).emit("moveup");
+  socket.on("player1up", (room) => {
+    socket.broadcast.to(room).emit("player1up");
   });
-  socket.on("endmovedown", (room) => {
-    socket.broadcast.to(room).emit("endmovedown");
+  socket.on("player1enddown", (room) => {
+    socket.broadcast.to(room).emit("player1enddown");
   });
-  socket.on("endmoveup", (room) => {
-    socket.broadcast.to(room).emit("endmoveup");
+  socket.on("player1endup", (room) => {
+    socket.broadcast.to(room).emit("player1endup");
+  });
+  socket.on("player2down", (room) => {
+    socket.broadcast.to(room).emit("player2down");
+  });
+  socket.on("player2up", (room) => {
+    socket.broadcast.to(room).emit("player2up");
+  });
+  socket.on("player2enddown", (room) => {
+    socket.broadcast.to(room).emit("player2enddown");
+  });
+  socket.on("player2endup", (room) => {
+    socket.broadcast.to(room).emit("player2endup");
   });
 
   socket.on("disconnect", () => {
