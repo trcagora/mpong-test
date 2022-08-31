@@ -163,7 +163,7 @@ io.on("connection", (socket) => {
     setTimeout(() => {
       io.emit("server:renderball", room, rooms[room].game);
       animate(room);
-    }, 40);
+    }, 10);
   }
 
   socket.on("client:connect", (room, username) => {
@@ -200,27 +200,27 @@ io.on("connection", (socket) => {
 
   socket.on("client:playerMoveUp", (room, newValue) => {
     rooms[room].game.paddleY = newValue;
-    socket.broadcast
-      .to(room)
-      .emit("server:playerMoveUp", rooms[room].game.paddleY);
+    // socket.broadcast
+    //   .to(room)
+    //   .emit("server:playerMoveUp", rooms[room].game.paddleY);
   });
   socket.on("client:playerMoveDown", (room, newValue) => {
     rooms[room].game.paddleY = newValue;
-    socket.broadcast
-      .to(room)
-      .emit("server:playerMoveDown", rooms[room].game.paddleY);
+    // socket.broadcast
+    //   .to(room)
+    //   .emit("server:playerMoveDown", rooms[room].game.paddleY);
   });
   socket.on("client:player2MoveUp", (room, newValue) => {
     rooms[room].game.paddleY2 = newValue;
-    socket.broadcast
-      .to(room)
-      .emit("server:player2MoveUp", rooms[room].game.paddleY2);
+    // socket.broadcast
+    //   .to(room)
+    //   .emit("server:player2MoveUp", rooms[room].game.paddleY2);
   });
   socket.on("client:player2MoveDown", (room, newValue) => {
     rooms[room].game.paddleY2 = newValue;
-    socket.broadcast
-      .to(room)
-      .emit("server:player2MoveDown", rooms[room].game.paddleY2);
+    // socket.broadcast
+    //   .to(room)
+    //   .emit("server:player2MoveDown", rooms[room].game.paddleY2);
   });
 
   // -------------------------------- Movimientos --------------------------------
