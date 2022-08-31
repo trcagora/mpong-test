@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MultiPong</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style></style>
+  </head>
+  <body
+    class="bg-[#061c33] flex min-h-screen min-w-full items-center justify-center flex-col"
+  >
+    <audio id="pong_sound"><source src="./assets/sound/hit.mp3" /></audio>
+    <div class="grid grid-cols-3 text-center text-white w-[800px]">
+      <div >
+        <span class="p-2 block">Player 2 </span>
+        <div>
+          <span class="p-2 " id="player2-puntos">Puntos: 0</span>
+          <span class="p-2 " id="player2-sets">Sets: 0</span>
+        </div>
+      </div>
+      <div class="max-content">
+        <span class="p-2 block  font-sm">
+          Set
+        </span>
+        <span id="set" class="p-2 pb-4 font-bold text-2xl">1</span>
+      </div>
+      <div >
+        <span class="p-2 block">Player 1 </span>
+        <div>
+          <span class="p-2 " id="player1-puntos">Puntos: 0</span>
+          <span class="p-2 " id="player1-sets">Sets: 0</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+    <canvas id="canvas" class="border-2 border-black rounded-lg"></canvas>
+
+    <script>
+      const room = "<%= room %>";
+    </script>
+    <script src="./socket.io/socket.io.js"></script>
+    <script src="./player.js"></script>
+  </body>
+</html>
