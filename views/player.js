@@ -168,7 +168,7 @@ function activeArrow() {
 }
 
 function drawBg(x1, x2, xb, y1, y2, yb) {
-  c.fillRect(0, 0, canvas.width, canvas.height);
+  c.clearRect(0, 0, canvas.width, canvas.height);
   c.beginPath();
   c.strokeStyle = "white";
   c.moveTo(400, 0);
