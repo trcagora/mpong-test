@@ -47,18 +47,21 @@ function createRoom(room) {
       dy: 5,
       leave: false,
       sets: 0,
+      state: true,
       players: [
         {
           id: null,
           username: null,
           puntos: 0,
           sets: 0,
+          ready: false,
         },
         {
           id: null,
           username: null,
           puntos: 0,
           sets: 0,
+          ready: false,
         },
       ],
     };
@@ -154,7 +157,7 @@ io.on("connection", (socket) => {
         rooms[room].game.paddleY = 500 / 2 - 50;
         rooms[room].game.paddleY2 = 500 / 2 - 50;
 
-        socket.to(room).emit("server:renderball", rooms[room].game);
+        io.emit("server:renderball", rooms[room].game);
         io.emit("server:gameover", room, rooms[room].game.players);
         return;
       }
@@ -163,7 +166,7 @@ io.on("connection", (socket) => {
     setTimeout(() => {
       io.emit("server:renderball", room, rooms[room].game);
       animate(room);
-    }, 10);
+    }, 30);
   }
 
   socket.on("client:connect", (room, username) => {
@@ -176,6 +179,7 @@ io.on("connection", (socket) => {
         username,
         puntos: 0,
         sets: 0,
+        ready: false,
       };
       console.log(`El usuario ${username} ingreso a la sala ${room}`);
     } else if (rooms[room].game.players[1].id === null) {
@@ -186,10 +190,10 @@ io.on("connection", (socket) => {
         username,
         puntos: 0,
         sets: 0,
+        ready: false,
       };
 
       console.log(`El usuario ${username} ingreso a la sala ${room}`);
-
       animate(room);
     } else {
       fullRoom();
@@ -200,27 +204,19 @@ io.on("connection", (socket) => {
 
   socket.on("client:playerMoveUp", (room, newValue) => {
     rooms[room].game.paddleY = newValue;
-    // socket.broadcast
-    //   .to(room)
-    //   .emit("server:playerMoveUp", rooms[room].game.paddleY);
+    // socket.emit("server:playerMoveUp", room, rooms[room].game.paddleY);
   });
   socket.on("client:playerMoveDown", (room, newValue) => {
     rooms[room].game.paddleY = newValue;
-    // socket.broadcast
-    //   .to(room)
-    //   .emit("server:playerMoveDown", rooms[room].game.paddleY);
+    // socket.emit("server:playerMoveDown", room, rooms[room].game.paddleY);
   });
   socket.on("client:player2MoveUp", (room, newValue) => {
     rooms[room].game.paddleY2 = newValue;
-    // socket.broadcast
-    //   .to(room)
-    //   .emit("server:player2MoveUp", rooms[room].game.paddleY2);
+    // socket.emit("server:player2MoveUp", room, rooms[room].game.paddleY2);
   });
   socket.on("client:player2MoveDown", (room, newValue) => {
     rooms[room].game.paddleY2 = newValue;
-    // socket.broadcast
-    //   .to(room)
-    //   .emit("server:player2MoveDown", rooms[room].game.paddleY2);
+    // socket.emit("server:player2MoveDown", room, rooms[room].game.paddleY2);
   });
 
   // -------------------------------- Movimientos --------------------------------
@@ -234,6 +230,7 @@ io.on("connection", (socket) => {
         rooms[r].game.players[0].id === socket.id ||
         rooms[r].game.players[1].id === socket.id
       ) {
+        io.emit("server:close", r);
         io.emit("server:leave", r, rooms[r].game.players);
 
         rooms[r].game.leave = true;
@@ -242,6 +239,7 @@ io.on("connection", (socket) => {
           username: null,
           puntos: 0,
           sets: 0,
+          ready: false,
         };
 
         rooms[r].game.players[1] = {
@@ -249,6 +247,7 @@ io.on("connection", (socket) => {
           username: null,
           puntos: 0,
           sets: 0,
+          ready: false,
         };
 
         // delete rooms[r];

@@ -13,6 +13,7 @@ let game = {
   paddleY2: 500 / 2 - 50,
   paddleHeight: 100,
   radius: 5,
+  state: true,
   x: 800 / 2,
   y: 500 / 2,
   dx: 10,
@@ -20,6 +21,7 @@ let game = {
   leave: false,
   scores: [0, 0],
   sets: 0,
+
   players: [
     {
       id: null,
@@ -38,25 +40,51 @@ let game = {
 
 window.onload = () => {
   socket.emit("client:connect", room, "player");
-  drawBg();
-  drawPaddle(game.paddleX, game.paddleY);
-  drawPaddle(game.paddleX2, game.paddleY2);
-  drawBall(game.x, game.y);
+  drawBg(
+    game.paddleX,
+    game.paddleX2,
+    game.x,
+    game.paddleY,
+    game.paddleY2,
+    game.y
+  );
+
+  requestAnimationFrame(drawBg);
 };
 
-// socket.on("server:start", (gamedata) => {
-//   game = gamedata;
-//   activeArrow();
-// });
+socket.on("server:close", (r) => {
+  if (r === room) {
+    game.state = false;
+  }
+});
+
+socket.on("server:playerMoveUp", (r, paddle) => {
+  if (r === room) {
+    game.paddleY = paddle;
+  }
+});
+
+socket.on("server:playerMoveDown", (r, paddle) => {
+  if (r === room) {
+    game.paddleY = paddle;
+  }
+});
+
+socket.on("server:player2MoveDown", (r, paddle) => {
+  if (r === room) {
+    game.paddleY2 = paddle;
+  }
+});
+
+socket.on("server:player2MoveUp", (r, paddle) => {
+  if (r === room) {
+    game.paddleY2 = paddle;
+  }
+});
 
 socket.on("server:renderball", (r, gamedata) => {
   if (room === r) {
     game = gamedata;
-    activeArrow();
-    drawBg();
-    drawPaddle(game.paddleX, game.paddleY);
-    drawPaddle(game.paddleX2, game.paddleY2);
-    drawBall(game.x, game.y);
 
     document.getElementById("set").innerText = game.sets + 1;
 
@@ -72,6 +100,9 @@ socket.on("server:renderball", (r, gamedata) => {
     document.getElementById(
       "player1-sets"
     ).innerText = `sets: ${game.players[0].sets}`;
+
+    play();
+    activeArrow();
   }
 });
 
@@ -81,16 +112,32 @@ socket.on("server:fullroom", () => {
 
 // funciones
 
+function play() {
+  if (game.state) {
+    drawBg(
+      game.paddleX,
+      game.paddleX2,
+      game.x,
+      game.paddleY,
+      game.paddleY2,
+      game.y
+    );
+    // drawPaddle(game.paddleX, game.paddleY);
+    // drawPaddle(game.paddleX2, game.paddleY2);
+    // drawBall(game.x, game.y);
+  }
+  requestAnimationFrame(play);
+}
+
 function activeArrow() {
   if (game.players[0].id === socket.id) {
-    document.addEventListener("keydown", (e) => {
-      let p1 = game.paddleY;
+    document.addEventListener("keyup", (e) => {
+      var p1 = game.paddleY;
       e.preventDefault();
       if (e.key == "ArrowDown") {
         if (p1 < 400) {
           p1 += 50;
         }
-
         socket.emit("client:playerMoveDown", room, p1);
       }
       if (e.key == "ArrowUp") {
@@ -101,8 +148,8 @@ function activeArrow() {
       }
     });
   } else if (game.players[1].id === socket.id) {
-    document.addEventListener("keydown", (e) => {
-      let p2 = game.paddleY2;
+    document.addEventListener("keyup", (e) => {
+      var p2 = game.paddleY2;
       e.preventDefault();
       if (e.key == "ArrowDown") {
         if (p2 < 400) {
@@ -120,26 +167,32 @@ function activeArrow() {
   }
 }
 
-function drawBg() {
-  c.fillStyle = "black";
+function drawBg(x1, x2, xb, y1, y2, yb) {
   c.fillRect(0, 0, canvas.width, canvas.height);
   c.beginPath();
   c.strokeStyle = "white";
   c.moveTo(400, 0);
   c.lineTo(400, 500);
   c.stroke();
-}
-
-function drawPaddle(x, y) {
   c.beginPath();
-  c.rect(x, y, 10, game.paddleHeight);
+  c.rect(x1, y1, 10, game.paddleHeight);
   c.fillStyle = "blue";
   c.fill();
-}
-
-function drawBall(x, y) {
   c.beginPath();
-  c.arc(x, y, 5, 0, 7);
+  c.rect(x2, y2, 10, game.paddleHeight);
+  c.fillStyle = "blue";
+  c.fill();
+  c.beginPath();
+  c.arc(xb, yb, 5, 0, 7);
   c.fillStyle = "white";
   c.fill();
 }
+
+// function drawPaddle(x, y) {}
+
+// function drawBall(x, y) {
+//   c.beginPath();
+//   c.arc(x, y, 5, 0, 7);
+//   c.fillStyle = "white";
+//   c.fill();
+// }
