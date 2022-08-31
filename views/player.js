@@ -48,9 +48,8 @@ window.onload = () => {
     game.paddleY2,
     game.y
   );
-  // drawPaddle(game.paddleX, game.paddleY);
-  // drawPaddle(game.paddleX2, game.paddleY2);
-  // drawBall(game.x, game.y);
+
+  requestAnimationFrame(drawBg);
 };
 
 socket.on("server:close", (r) => {
@@ -169,7 +168,6 @@ function activeArrow() {
 }
 
 function drawBg(x1, x2, xb, y1, y2, yb) {
-  c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
   c.beginPath();
   c.strokeStyle = "white";
